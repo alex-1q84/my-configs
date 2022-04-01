@@ -3,14 +3,10 @@
 ## Features I want to have
 
 - [X] can specification where to backup the config files
-- [] auto backup current file and directory as list in configurations
-- [] convention over setting
-  supported backup directory
-    - `/usr/local/etc`
-    - `~/`
-    - `~/Library/Application Support/`
-- [] auto link file to destination position
-  auto link files in special directory to destination
+- [X] backup current file and directory as list in configurations
+- [X] convention over setting
+- [] link file to destination position
+  link files in special directory to destination
 
 ## File backup rename rules
 
@@ -23,3 +19,4 @@
 
 - every `xx.symlink` file will soft link into `~` directory
 - every `xx+` directory will soft link into `~` directory
+- every file and directory in directory with `_` prefix will link to absolute path
