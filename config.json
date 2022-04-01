@@ -1,8 +1,9 @@
 {
   "backup_dir": "~/Dropbox/configs/",
-  "pathes": [
-      "/usr/local/etc/shadowsocks-libev.json",
-      "~/.gitconfig",
-      "~/.config/fish"
-      ]
+  "paths": [
+    "/usr/local/etc/shadowsocks-libev.json",
+    "~/.gitconfig",
+    "~/.config/fish",
+    "~/.vimrc"
+  ]
 }

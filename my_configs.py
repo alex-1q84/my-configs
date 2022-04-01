@@ -35,19 +35,16 @@ class Config:
 
     def backup(self):
         self.init_dir(self.backup_dir)
-        for p in config.pathes:
+        for p in config.paths:
             fpath = Path(p).expanduser()
             if fpath.exists():
                 if is_dot_dir(fpath):
-                    backup_path = self.to_backup_path(to_backup_dir(fpath))
-                    copy(fpath, backup_path)
+                    copy(fpath, self.to_backup_path(to_backup_dir(fpath)))
                 elif is_dot_file(fpath):
-                    backup_path = self.to_backup_path(to_backup_file(fpath))
-                    copy(fpath, backup_path)
+                    copy(fpath, self.to_backup_path(to_backup_file(fpath)))
                 else:
                     # backup file to the given backup path or fail
-                    backup_path = self.to_backup_path(fpath)
-                    copy(fpath, backup_path)
+                    copy(fpath, self.to_backup_path(fpath))
 
     def to_backup_path(self, fpath):
         backup_dir = self.mapping_dir(fpath)
@@ -72,18 +69,18 @@ class Config:
             for p in path.iterdir():
                 # if is symlink file then link to user home dir
                 if is_link_file(p):
-                    link_to(p, Path("~") / to_dot_file_name(p.name))
+                    link_to(Path("~") / to_dot_file_name(p.name), p)
                 # if is + ending dir then link to user home dir
                 if is_link_dir(p):
-                    link_to(p, Path("~") / link_dir_to_dot_dir_name(p.name))
+                    link_to(Path("~") / link_dir_to_dot_dir_name(p.name), p)
                 # if is + prefixing dir then link inner files and dirs to user home dir
                 if is_hidden_dir(p):
                     for subp in p.iterdir():
-                        link_to(subp, Path("~") / hidden_dir_to_dot_dir_name(p.name) / subp.name)
+                        link_to(Path("~") / hidden_dir_to_dot_dir_name(p.name) / subp.name, subp)
                 # if is _ prefixing dir then link to absolute path
                 if is_abs_path_dir(p):
                     for subp in p.iterdir():
-                        link_to(subp, to_abs_path(p.name) / subp.name)
+                        link_to(to_abs_path(p.name) / subp.name, subp)
                 # else if normal dir then go into the dir and perform the link method
                 # will ignore not symlink files
                 elif is_dir(p):
@@ -97,9 +94,19 @@ def is_link_file(path):
 
 
 @display("LINK {} to {}")
-def link_to(path, dest_path):
-    # FIXME
-    pass
+def link_to(dest_path: Path, path: Path):
+    dest_path = dest_path.expanduser()
+    path = path.expanduser()
+    if dest_path.exists():
+        if dest_path.samefile(path):
+            return
+        else:
+            bak_path = dest_path.parent / (dest_path.name + ".bak")
+            dest_path.rename(bak_path)
+            print("move {} to {}".format(dest_path, bak_path))
+            dest_path.symlink_to(path.expanduser())
+    else:
+        dest_path.symlink_to(path.expanduser())
 
 
 def is_link_dir(path):
@@ -147,7 +154,16 @@ def link_dir_to_dot_dir_name(name):
 
 @display("BACKUP {} TO {}")
 def copy(from_path, to_path):
-    dest_dir = Path(to_path).expanduser().parent
+    src_path = Path(from_path).expanduser()
+    dest_path = Path(to_path).expanduser()
+    if not src_path.exists():
+        print("WARN: file or directory {} not exist".format(from_path))
+        return
+
+    if dest_path.exists() and src_path.samefile(dest_path):
+        return
+
+    dest_dir = dest_path.parent
     if not dest_dir.exists():
         dest_dir.mkdir(parents=True, exist_ok=True)
     if Path(from_path).is_file():
