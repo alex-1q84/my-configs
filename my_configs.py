@@ -88,6 +88,14 @@ class Config:
 
         inner_link(self.backup_dir)
 
+    def move_bak_files(self, dest_dir):
+        for p in config.paths:
+            bak_path = add_suffix(Path(p), ".bak").expanduser()
+            if bak_path.exists():
+                bak_path.rename(Path(dest_dir).expanduser() / bak_path.name)
+            else:
+                print("File or directory not exist:", bak_path)
+
 
 def is_link_file(path):
     return path.is_file() and path.name.endswith(".symlink")
@@ -101,12 +109,16 @@ def link_to(dest_path: Path, path: Path):
         if dest_path.samefile(path):
             return
         else:
-            bak_path = dest_path.parent / (dest_path.name + ".bak")
+            bak_path = add_suffix(dest_path, ".bak")
             dest_path.rename(bak_path)
             print("move {} to {}".format(dest_path, bak_path))
             dest_path.symlink_to(path.expanduser())
     else:
         dest_path.symlink_to(path.expanduser())
+
+
+def add_suffix(path: Path, suffix):
+    return path.parent / (path.name + suffix)
 
 
 def is_link_dir(path):
@@ -191,3 +203,6 @@ def to_backup_file(fpath):
 config = Config(open("config.json"))
 config.backup()
 config.link()
+directory = Path("~/Downloads/tmp")
+directory.mkdir(exist_ok=True)
+config.move_bak_files(directory)
