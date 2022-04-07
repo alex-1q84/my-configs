@@ -21,6 +21,18 @@ class display:
         return wrapper
 
 
+def to_user_home_dir(fname):
+    """convert ~+a-b-c name to ~/.a/b/c"""
+    sub_name = fname[1:]
+    if sub_name.startswith("+"):
+        sub_name = sub_name.replace("+", ".", 1)
+    return Path("~") / "/".join(sub_name.split("-"))
+
+
+def is_user_home_dir(path):
+    return path.is_dir() and path.name.startswith("~")
+
+
 class Config:
 
     def __init__(self, config_path):
@@ -38,10 +50,8 @@ class Config:
         for p in config.paths:
             fpath = Path(p).expanduser()
             if fpath.exists():
-                if is_dot_dir(fpath):
-                    copy(fpath, self.to_backup_path(to_backup_dir(fpath)))
-                elif is_dot_file(fpath):
-                    copy(fpath, self.to_backup_path(to_backup_file(fpath)))
+                if is_dot_dir(fpath) or is_dot_file(fpath):
+                    copy(fpath, self.to_backup_path(dot_file_to_backup_file(fpath)))
                 else:
                     # backup file to the given backup path or fail
                     copy(fpath, self.to_backup_path(fpath))
@@ -60,7 +70,10 @@ class Config:
         p_path = fpath.parent.expanduser()
         try:
             relative_path = p_path.relative_to(Path("~").expanduser())
-            return "-".join([rename_dot_dir(d) for d in relative_path.parts])
+            if relative_path.parts:
+                return "~" + "-".join([rename_dot_dir(d) for d in relative_path.parts])
+            else:
+                return ""
         except ValueError:
             return "_" + "-".join(rename_dot_dir(d) for d in p_path.parts[1:])
 
@@ -69,14 +82,14 @@ class Config:
             for p in path.iterdir():
                 # if is symlink file then link to user home dir
                 if is_link_file(p):
-                    link_to(Path("~") / to_dot_file_name(p.name), p)
-                # if is + ending dir then link to user home dir
+                    link_to(symlink_to_user_home_dot(p.name), p)
+                # if is prefixed with ~ and not suffixed with .symlink dir then link to user home dir
                 if is_link_dir(p):
-                    link_to(Path("~") / link_dir_to_dot_dir_name(p.name), p)
-                # if is + prefixing dir then link inner files and dirs to user home dir
-                if is_hidden_dir(p):
+                    link_to(symlink_to_user_home_dot(p.name), p)
+                # if is prefixed with ~ and not suffixed with .symlink dir then link inner files and dirs into user home
+                if is_user_home_dir(p):
                     for subp in p.iterdir():
-                        link_to(Path("~") / hidden_dir_to_dot_dir_name(p.name) / subp.name, subp)
+                        link_to(to_user_home_dir(p.name) / subp.name, subp)
                 # if is _ prefixing dir then link to absolute path
                 if is_abs_path_dir(p):
                     for subp in p.iterdir():
@@ -97,10 +110,6 @@ class Config:
                 print("File or directory not exist:", bak_path)
 
 
-def is_link_file(path):
-    return path.is_file() and path.name.endswith(".symlink")
-
-
 @display("LINK {} to {}")
 def link_to(dest_path: Path, path: Path):
     dest_path = dest_path.expanduser()
@@ -111,7 +120,7 @@ def link_to(dest_path: Path, path: Path):
         else:
             bak_path = add_suffix(dest_path, ".bak")
             dest_path.rename(bak_path)
-            print("move {} to {}".format(dest_path, bak_path))
+            print("MOVE {} to {}".format(dest_path, bak_path))
             dest_path.symlink_to(path.expanduser())
     else:
         dest_path.symlink_to(path.expanduser())
@@ -121,20 +130,12 @@ def add_suffix(path: Path, suffix):
     return path.parent / (path.name + suffix)
 
 
+def is_link_file(path):
+    return path.is_file() and path.name.endswith(".symlink")
+
+
 def is_link_dir(path):
-    return path.is_dir() and path.name.endswith("+")
-
-
-def is_hidden_dir(path):
-    return path.is_dir() and is_hidden_dir_name(path.name)
-
-
-def is_hidden_dir_name(fname):
-    return fname.startswith("+")
-
-
-def hidden_dir_to_dot_dir_name(fname):
-    return "." + fname[1:]
+    return path.is_dir() and path.name.endswith(".symlink")
 
 
 def is_abs_path_dir(path):
@@ -156,12 +157,9 @@ def is_dir(path):
     return path.is_dir()
 
 
-def to_dot_file_name(name):
-    return "." + name.replace(".symlink", "")
-
-
-def link_dir_to_dot_dir_name(name):
-    return "." + name[:-1]
+def symlink_to_user_home_dot(name):
+    sub_name = "." + name.rstrip(".symlink")
+    return Path("~") / sub_name
 
 
 @display("BACKUP {} TO {}")
@@ -192,17 +190,16 @@ def is_dot_file(fpath):
     return fpath.is_file() and fpath.name.startswith(".")
 
 
-def to_backup_dir(fpath):
-    return fpath.parent / (fpath.name[1:] + "+")
-
-
-def to_backup_file(fpath):
+def dot_file_to_backup_file(fpath):
     return fpath.parent / (fpath.name[1:] + ".symlink")
 
 
-config = Config(open("config.json"))
-config.backup()
-config.link()
-directory = Path("~/Downloads/tmp")
-directory.mkdir(exist_ok=True)
-config.move_bak_files(directory)
+if __name__ == "__main__":
+    config = Config(open("config.json"))
+    config.backup()
+    config.link()
+
+    # just for move .bak file together
+    # directory = Path("~/Downloads/tmp").expanduser()
+    # directory.mkdir(exist_ok=True)
+    # config.move_bak_files(directory)

@@ -11,14 +11,17 @@
 ## File backup rename rules
 
 - `/a/b/c` absolute path file will be backup to `_a-b/c`
-- `~/.xx/yy` directory in user home will backup to `+xx/yy`
+- `~/.xx/yy` directory in user home will be backup to `~+xx/yy`
+- `~/xx/yy/zz` directory in user home will be backup to `~xx-yy/zz`
 - `~/.xx` file will backup to `xx.symlink`
-- `~/.xx` directory will backup to `xx+`
+- `~/.xx` directory will backup to `~+xx.symlink`
 
 ## File link rules
 
 - every `xx.symlink` file will soft link into `~` directory
-- every `xx+` directory will soft link into `~` directory
+- every `~+xx.symlink` directory will soft link into `~` directory
+- every `~xx.symlink` directory will soft link into `~` directory
+- every file and directory in directory with `~` prefix but not suffix with `+` will link to `~` directory
 - every file and directory in directory with `_` prefix will link to absolute path
 
 ## How to use this tool
