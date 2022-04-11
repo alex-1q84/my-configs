@@ -7,6 +7,9 @@
     "~/.gitignore",
     "~/.gitignore_global",
     "~/.config/fish",
+    "~/.config/nvim/init.vim",
+    "~/.config/nvim/lua/plugins.lua",
+    "~/.config/nvim/lua/plugins.lua.sample",
     "~/.vimrc",
     "~/.gvimrc",
     "~/.vim",
@@ -27,6 +30,7 @@
     "~/.hgrc",
     "~/.tmux",
     "~/.tmux.conf",
-    "~/Library/Application Support/pip/pip.conf"
+    "~/Library/Application Support/pip/pip.conf",
+    "~/Library/Rime"
   ]
 }

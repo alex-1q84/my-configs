@@ -1,8 +1,11 @@
 VENV = venv
 DEPENDENCY = requirements.txt
 
+backup: init
+	venv/bin/python3 my_configs.py
+
 init: $(DEPENDENCY)
-	-echo "init complete"
+	@echo "init complete"
 
 $(VENV):
 	python3 -m venv $(VENV)
@@ -13,4 +16,4 @@ $(DEPENDENCY): $(VENV)
 clean:
 	rm -rf $(VENV)
 
-.PHONY: clean init
+.PHONY: link clean init
