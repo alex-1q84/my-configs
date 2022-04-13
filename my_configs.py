@@ -158,7 +158,7 @@ def is_dir(path):
 
 
 def symlink_to_user_home_dot(name):
-    sub_name = "." + name.rstrip(".symlink")
+    sub_name = "." + name.removesuffix(".symlink")
     return Path("~") / sub_name
 
 

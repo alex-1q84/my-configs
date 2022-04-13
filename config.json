@@ -30,6 +30,7 @@
     "~/.hgrc",
     "~/.tmux",
     "~/.tmux.conf",
+    "~/.editorconfig",
     "~/Library/Application Support/pip/pip.conf",
     "~/Library/Rime"
   ]
