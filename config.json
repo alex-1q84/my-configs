@@ -32,6 +32,7 @@
     "~/.tmux.conf",
     "~/.editorconfig",
     "~/Library/Application Support/pip/pip.conf",
-    "~/Library/Rime"
+    "~/Library/Rime",
+    "~/Library/Application Support/espanso"
   ]
 }
