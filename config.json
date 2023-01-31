@@ -19,6 +19,7 @@
     "~/.vimrc.fork",
     "~/.vimrc.local",
     "~/.spacemacs",
+    "~/.ideavimrc",
     "~/.m2/settings.xml",
     "~/.m2/home_settings.xml",
     "~/.zshrc",
@@ -33,6 +34,8 @@
     "~/.editorconfig",
     "~/Library/Application Support/pip/pip.conf",
     "~/Library/Rime",
-    "~/Library/Application Support/espanso"
+    "~/Library/Application Support/espanso",
+    "~/lab/venvs/leo/Makefile",
+    "~/.leo"
   ]
 }
