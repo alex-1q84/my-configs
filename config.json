@@ -1,8 +1,8 @@
 {
   "backup_dir": "~/Dropbox/configs/",
   "paths": [
-    "/usr/local/etc/shadowsocks-libev.json",
-    "/usr/local/etc/privoxy",
+    "/opt/homebrew/etc/shadowsocks-libev.json",
+    "/opt/homebrew/etc/privoxy",
     "~/.gitconfig",
     "~/.gitignore",
     "~/.gitignore_global",
@@ -36,6 +36,9 @@
     "~/Library/Rime",
     "~/Library/Application Support/espanso",
     "~/lab/venvs/leo/Makefile",
-    "~/.leo"
+    "~/.leo",
+    "~/.config/karabiner",
+    "~/.config/uv/uv.toml",
+    "~/.emacs.d"
   ]
 }
